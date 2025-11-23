@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laundry Management System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Laundry Management System</h1>
+        </header>
+
+        <nav>
+            <button class="nav-btn active" data-section="dashboard">Dashboard</button>
+            <button class="nav-btn" data-section="orders">Orders</button>
+            <button class="nav-btn" data-section="customers">Customers</button>
+            <button class="nav-btn" data-section="summary">Sales Summary</button>
+            <button class="nav-btn" data-section="reports">Reports</button>
+            <button class="nav-btn" data-section="notifications">Notifications</button>
+        </nav>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard-section" class="section active">
+            <h2>Dashboard - Active Orders</h2>
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <h3>Active Orders</h3>
+                    <p class="stat-value" id="active-orders-count">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Pending Payment</h3>
+                    <p class="stat-value" id="unpaid-orders-count">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>In Progress</h3>
+                    <p class="stat-value" id="in-progress-count">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Ready for Pickup</h3>
+                    <p class="stat-value" id="ready-count">0</p>
+                </div>
+            </div>
+            <div class="table-container">
+                <h3>Active Orders Progress</h3>
+                <table id="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Service</th>
+                            <th>Status</th>
+                            <th>Progress</th>
+                            <th>Payment</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashboard-tbody">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Orders Section -->
+        <section id="orders-section" class="section">
+            <h2>Order Management</h2>
+            
+            <div class="form-container">
+                <h3>Create New Order</h3>
+                <form id="order-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="customerName">Customer Name *</label>
+                            <input type="text" id="customerName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact">Contact Number *</label>
+                            <input type="text" id="contact" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <input type="text" id="address">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="weight">Weight (kg) * (6kg minimum, 8kg maximum)</label>
+                            <input type="number" id="weight" step="0.1" min="6" max="8" required>
+                            <small style="display: block; margin-top: 5px; color: #666;">Base: 6kg = ₱160, Additional kg = ₱20 each</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="serviceType">Service Type *</label>
+                            <select id="serviceType" required>
+                                <option value="wash">Wash</option>
+                                <option value="dry">Dry</option>
+                                <option value="fold">Fold</option>
+                                <option value="iron">Iron</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="wash-addons" class="form-group" style="display: none; padding: 15px; background: rgba(102, 126, 234, 0.05); border-radius: 10px; border: 2px solid rgba(102, 126, 234, 0.2);">
+                        <label style="font-weight: 600; color: #667eea; margin-bottom: 15px; display: block;">Additional Services for Wash (₱10 each)</label>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fabconQuantity">Fabric Conditioner (Fabcon) - ₱10 each</label>
+                                <select id="fabconQuantity" style="width: 100%;">
+                                    <option value="0">0 - None</option>
+                                    <option value="1">1 - ₱10.00</option>
+                                    <option value="2">2 - ₱20.00</option>
+                                    <option value="3">3 - ₱30.00</option>
+                                    <option value="4">4 - ₱40.00</option>
+                                    <option value="5">5 - ₱50.00</option>
+                                    <option value="6">6 - ₱60.00</option>
+                                    <option value="7">7 - ₱70.00</option>
+                                    <option value="8">8 - ₱80.00</option>
+                                    <option value="9">9 - ₱90.00</option>
+                                    <option value="10">10 - ₱100.00</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="powderQuantity">Detergent Powder - ₱10 each</label>
+                                <select id="powderQuantity" style="width: 100%;">
+                                    <option value="0">0 - None</option>
+                                    <option value="1">1 - ₱10.00</option>
+                                    <option value="2">2 - ₱20.00</option>
+                                    <option value="3">3 - ₱30.00</option>
+                                    <option value="4">4 - ₱40.00</option>
+                                    <option value="5">5 - ₱50.00</option>
+                                    <option value="6">6 - ₱60.00</option>
+                                    <option value="7">7 - ₱70.00</option>
+                                    <option value="8">8 - ₱80.00</option>
+                                    <option value="9">9 - ₱90.00</option>
+                                    <option value="10">10 - ₱100.00</option>
+                                </select>
+                            </div>
+                        </div>
+                        <small style="display: block; margin-top: 10px; color: #666; font-style: italic;">Select quantity for each additional service (₱10 per item)</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">Order Notes</label>
+                        <textarea id="notes" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Total Price (auto-calculated)</label>
+                        <input type="text" id="price-display" readonly style="font-size: 18px; font-weight: bold; color: #667eea;">
+                        <small style="display: block; margin-top: 5px; color: #666;">Price includes base rate (₱160) + any selected add-ons</small>
+                    </div>
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Payment Information</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="paymentStatus">Payment Status *</label>
+                            <select id="paymentStatus" required>
+                                <option value="unpaid">Unpaid</option>
+                                <option value="paid">Paid</option>
+                                <option value="partial">Partial</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="paymentMethod">Payment Method</label>
+                            <select id="paymentMethod">
+                                <option value="">Select method</option>
+                                <option value="cash">Cash</option>
+                                <option value="gcash">GCash</option>
+                                <option value="paymaya">PayMaya</option>
+                                <option value="bank">Bank Transfer</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="paymentDate">Payment Date</label>
+                            <input type="date" id="paymentDate">
+                        </div>
+                    </div>
+                    <button type="submit">Create Order</button>
+                    <button type="button" id="cancel-edit" style="display: none;">Cancel Edit</button>
+                </form>
+            </div>
+
+            <div class="table-container">
+                <h3>All Orders</h3>
+                <table id="orders-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer</th>
+                            <th>Contact</th>
+                            <th>Weight</th>
+                            <th>Service</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Payment</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-tbody">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Customers Section -->
+        <section id="customers-section" class="section">
+            <h2>Customer Records</h2>
+            
+            <div class="table-container">
+                <h3>All Customers</h3>
+                <table id="customers-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Contact</th>
+                            <th>Total Orders</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customers-tbody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="customer-history" style="display: none;">
+                <h3>Order History</h3>
+                <table id="history-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Weight</th>
+                            <th>Service</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-tbody">
+                    </tbody>
+                </table>
+                <button id="back-to-customers">Back to Customers</button>
+            </div>
+        </section>
+
+        <!-- Sales Summary Section -->
+        <section id="summary-section" class="section">
+            <h2>Sales Summary</h2>
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <h3>Total Sales Today</h3>
+                    <p class="summary-value" id="total-sales">₱0.00</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Total Orders Today</h3>
+                    <p class="summary-value" id="total-orders">0</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Completed Orders</h3>
+                    <p class="summary-value" id="completed-orders">0</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Paid Orders</h3>
+                    <p class="summary-value" id="paid-orders">0</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Unpaid Orders</h3>
+                    <p class="summary-value" id="unpaid-orders">0</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reports Section -->
+        <section id="reports-section" class="section">
+            <h2>Sales Reports</h2>
+            <div class="form-container">
+                <h3>Generate Report</h3>
+                <form id="report-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="reportStartDate">Start Date</label>
+                            <input type="date" id="reportStartDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="reportEndDate">End Date</label>
+                            <input type="date" id="reportEndDate">
+                        </div>
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button type="submit">Generate Report</button>
+                            <button type="button" id="export-report">Export to CSV</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div id="report-results" style="display: none;">
+                <div class="summary-cards" id="report-summary">
+                </div>
+                <div class="table-container" style="margin-top: 20px;">
+                    <h3>Report Details</h3>
+                    <table id="report-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Date</th>
+                                <th>Service</th>
+                                <th>Weight</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                                <th>Payment</th>
+                            </tr>
+                        </thead>
+                        <tbody id="report-tbody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Notifications Section -->
+        <section id="notifications-section" class="section">
+            <h2>Send Customer Notifications</h2>
+            <div class="form-container">
+                <h3>Send Update</h3>
+                <form id="notification-form">
+                    <div class="form-group">
+                        <label for="notificationOrder">Select Order</label>
+                        <select id="notificationOrder" required>
+                            <option value="">Select an order...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="notificationType">Notification Type</label>
+                        <select id="notificationType" required>
+                            <option value="status">Status Update</option>
+                            <option value="payment">Payment Reminder</option>
+                            <option value="ready">Ready for Pickup</option>
+                            <option value="custom">Custom Message</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="notificationMessage">Message</label>
+                        <textarea id="notificationMessage" rows="5" required></textarea>
+                        <small>Message will be auto-generated based on order status, or enter custom message.</small>
+                    </div>
+                    <button type="submit">Send Notification</button>
+                    <button type="button" id="preview-notification">Preview Message</button>
+                </form>
+            </div>
+            <div class="table-container" style="margin-top: 20px;">
+                <h3>Recent Notifications</h3>
+                <table id="notifications-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Type</th>
+                            <th>Message</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="notifications-tbody">
+                        <tr>
+                            <td colspan="6">No notifications sent yet</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+
