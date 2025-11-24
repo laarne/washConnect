@@ -9,7 +9,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>Laundry Management System</h1>
+            <h1>Wash Connect Laundry Management System</h1>
         </header>
 
         <nav>
@@ -21,7 +21,6 @@
             <button class="nav-btn" data-section="notifications">Notifications</button>
         </nav>
 
-        <!-- Dashboard Section -->
         <section id="dashboard-section" class="section active">
             <h2>Dashboard - Active Orders</h2>
             <div class="dashboard-stats">
@@ -62,7 +61,6 @@
             </div>
         </section>
 
-        <!-- Orders Section -->
         <section id="orders-section" class="section">
             <h2>Order Management</h2>
             
@@ -72,111 +70,74 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="customerName">Customer Name *</label>
-                            <input type="text" id="customerName" required>
+                            <input type="text" id="customerName" list="customer-suggestions" required autocomplete="off" placeholder="Start typing name...">
+                            <datalist id="customer-suggestions"></datalist>
                         </div>
                         <div class="form-group">
                             <label for="contact">Contact Number *</label>
                             <input type="text" id="contact" required>
                         </div>
-                    </div>
-                    <div class="form-row">
                         <div class="form-group">
-                            <label for="email">Email</label>
+                            <label for="email">Email (Optional)</label>
                             <input type="email" id="email">
                         </div>
-                        <div class="form-group">
-                            <label for="address">Address</label>
-                            <input type="text" id="address">
-                        </div>
                     </div>
+                    
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="weight">Weight (kg) * (6kg minimum, 8kg maximum)</label>
+                            <label for="weight">Weight (kg) * (6kg - 8kg)</label>
                             <input type="number" id="weight" step="0.1" min="6" max="8" required>
-                            <small style="display: block; margin-top: 5px; color: #666;">Base: 6kg = ₱160, Additional kg = ₱20 each</small>
+                            <small style="display: block; margin-top: 5px; color: #666;">Base: 6kg = ₱160, +₱20 per extra kg</small>
                         </div>
                         <div class="form-group">
                             <label for="serviceType">Service Type *</label>
                             <select id="serviceType" required>
-                                <option value="wash">Wash</option>
+                                <option value="wash" selected>Wash</option>
                                 <option value="dry">Dry</option>
                                 <option value="fold">Fold</option>
                                 <option value="iron">Iron</option>
                             </select>
                         </div>
                     </div>
+
                     <div id="wash-addons" class="form-group" style="display: none; padding: 15px; background: rgba(102, 126, 234, 0.05); border-radius: 10px; border: 2px solid rgba(102, 126, 234, 0.2);">
-                        <label style="font-weight: 600; color: #667eea; margin-bottom: 15px; display: block;">Additional Services for Wash (₱10 each)</label>
+                        <label style="font-weight: 600; color: #667eea; margin-bottom: 15px; display: block;">Additional Services (₱10 each)</label>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="fabconQuantity">Fabric Conditioner (Fabcon) - ₱10 each</label>
+                                <label for="fabconQuantity">Fabric Conditioner</label>
                                 <select id="fabconQuantity" style="width: 100%;">
-                                    <option value="0">0 - None</option>
-                                    <option value="1">1 - ₱10.00</option>
-                                    <option value="2">2 - ₱20.00</option>
-                                    <option value="3">3 - ₱30.00</option>
-                                    <option value="4">4 - ₱40.00</option>
-                                    <option value="5">5 - ₱50.00</option>
-                                    <option value="6">6 - ₱60.00</option>
-                                    <option value="7">7 - ₱70.00</option>
-                                    <option value="8">8 - ₱80.00</option>
-                                    <option value="9">9 - ₱90.00</option>
-                                    <option value="10">10 - ₱100.00</option>
+                                    <option value="0">None</option>
+                                    <option value="1">1 (₱10)</option>
+                                    <option value="2">2 (₱20)</option>
+                                    <option value="3">3 (₱30)</option>
+                                    <option value="4">4 (₱40)</option>
+                                    <option value="5">5 (₱50)</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="powderQuantity">Detergent Powder - ₱10 each</label>
+                                <label for="powderQuantity">Detergent Powder</label>
                                 <select id="powderQuantity" style="width: 100%;">
-                                    <option value="0">0 - None</option>
-                                    <option value="1">1 - ₱10.00</option>
-                                    <option value="2">2 - ₱20.00</option>
-                                    <option value="3">3 - ₱30.00</option>
-                                    <option value="4">4 - ₱40.00</option>
-                                    <option value="5">5 - ₱50.00</option>
-                                    <option value="6">6 - ₱60.00</option>
-                                    <option value="7">7 - ₱70.00</option>
-                                    <option value="8">8 - ₱80.00</option>
-                                    <option value="9">9 - ₱90.00</option>
-                                    <option value="10">10 - ₱100.00</option>
+                                    <option value="0">None</option>
+                                    <option value="1">1 (₱10)</option>
+                                    <option value="2">2 (₱20)</option>
+                                    <option value="3">3 (₱30)</option>
+                                    <option value="4">4 (₱40)</option>
+                                    <option value="5">5 (₱50)</option>
                                 </select>
                             </div>
                         </div>
-                        <small style="display: block; margin-top: 10px; color: #666; font-style: italic;">Select quantity for each additional service (₱10 per item)</small>
                     </div>
+
                     <div class="form-group">
                         <label for="notes">Order Notes</label>
                         <textarea id="notes" rows="3"></textarea>
                     </div>
+
                     <div class="form-group">
-                        <label>Total Price (auto-calculated)</label>
-                        <input type="text" id="price-display" readonly style="font-size: 18px; font-weight: bold; color: #667eea;">
-                        <small style="display: block; margin-top: 5px; color: #666;">Price includes base rate (₱160) + any selected add-ons</small>
+                        <label>Total Price</label>
+                        <input type="text" id="price-display" readonly style="font-size: 24px; font-weight: bold; color: #667eea; border: none; background: transparent;">
                     </div>
-                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Payment Information</h4>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="paymentStatus">Payment Status *</label>
-                            <select id="paymentStatus" required>
-                                <option value="unpaid">Unpaid</option>
-                                <option value="paid">Paid</option>
-                                <option value="partial">Partial</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="paymentMethod">Payment Method</label>
-                            <select id="paymentMethod">
-                                <option value="">Select method</option>
-                                <option value="cash">Cash</option>
-                                <option value="gcash">GCash</option>
-                                <option value="paymaya">PayMaya</option>
-                                <option value="bank">Bank Transfer</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="paymentDate">Payment Date</label>
-                            <input type="date" id="paymentDate">
-                        </div>
-                    </div>
+
                     <button type="submit">Create Order</button>
                     <button type="button" id="cancel-edit" style="display: none;">Cancel Edit</button>
                 </form>
@@ -205,28 +166,49 @@
             </div>
         </section>
 
-        <!-- Customers Section -->
         <section id="customers-section" class="section">
             <h2>Customer Records</h2>
             
-            <div class="table-container">
+            <div id="edit-customer-form-container" class="form-container" style="display: none; background: #e8f0fe; border-color: #667eea;">
+                <h3>Edit Customer Details</h3>
+                <form id="customer-edit-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Name (Read-only)</label>
+                            <input type="text" id="edit-cust-name" readonly style="background: #ddd; cursor: not-allowed;">
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Number</label>
+                            <input type="text" id="edit-cust-contact" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="edit-cust-email">
+                        </div>
+                    </div>
+                    <button type="submit">Save Changes</button>
+                    <button type="button" class="secondary" onclick="cancelEditCustomer()">Cancel</button>
+                </form>
+            </div>
+
+            <div class="table-container" id="customers-main-view">
                 <h3>All Customers</h3>
                 <table id="customers-table">
                     <thead>
                         <tr>
                             <th>Name</th>
                             <th>Contact</th>
+                            <th>Email</th>
                             <th>Total Orders</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="customers-tbody">
-                    </tbody>
+                    <tbody id="customers-tbody"></tbody>
                 </table>
             </div>
 
             <div id="customer-history" style="display: none;">
-                <h3>Order History</h3>
+                <h3 id="history-title">Order History</h3>
                 <table id="history-table">
                     <thead>
                         <tr>
@@ -238,14 +220,12 @@
                             <th>Date</th>
                         </tr>
                     </thead>
-                    <tbody id="history-tbody">
-                    </tbody>
+                    <tbody id="history-tbody"></tbody>
                 </table>
-                <button id="back-to-customers">Back to Customers</button>
+                <button id="back-to-customers" class="secondary" style="margin-top: 15px;">Back to List</button>
             </div>
         </section>
 
-        <!-- Sales Summary Section -->
         <section id="summary-section" class="section">
             <h2>Sales Summary</h2>
             <div class="summary-cards">
@@ -272,7 +252,6 @@
             </div>
         </section>
 
-        <!-- Reports Section -->
         <section id="reports-section" class="section">
             <h2>Sales Reports</h2>
             <div class="form-container">
@@ -296,8 +275,7 @@
                 </form>
             </div>
             <div id="report-results" style="display: none;">
-                <div class="summary-cards" id="report-summary">
-                </div>
+                <div class="summary-cards" id="report-summary"></div>
                 <div class="table-container" style="margin-top: 20px;">
                     <h3>Report Details</h3>
                     <table id="report-table">
@@ -313,14 +291,12 @@
                                 <th>Payment</th>
                             </tr>
                         </thead>
-                        <tbody id="report-tbody">
-                        </tbody>
+                        <tbody id="report-tbody"></tbody>
                     </table>
                 </div>
             </div>
         </section>
 
-        <!-- Notifications Section -->
         <section id="notifications-section" class="section">
             <h2>Send Customer Notifications</h2>
             <div class="form-container">
@@ -344,7 +320,6 @@
                     <div class="form-group">
                         <label for="notificationMessage">Message</label>
                         <textarea id="notificationMessage" rows="5" required></textarea>
-                        <small>Message will be auto-generated based on order status, or enter custom message.</small>
                     </div>
                     <button type="submit">Send Notification</button>
                     <button type="button" id="preview-notification">Preview Message</button>
@@ -364,9 +339,7 @@
                         </tr>
                     </thead>
                     <tbody id="notifications-tbody">
-                        <tr>
-                            <td colspan="6">No notifications sent yet</td>
-                        </tr>
+                        <tr><td colspan="6">No notifications sent yet</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -376,4 +349,3 @@
     <script src="app.js"></script>
 </body>
 </html>
-

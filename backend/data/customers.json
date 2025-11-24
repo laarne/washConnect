@@ -1,2 +1,26 @@
-[]
-
+[
+  {
+    "name": "john michael Beringuel",
+    "contact": "09683971495",
+    "email": "jm3677545555555555@gmail.com",
+    "address": "philippines",
+    "createdAt": "2025-11-24T05:02:34.174Z",
+    "updatedAt": "2025-11-24T05:02:34.174Z"
+  },
+  {
+    "name": "washiwa",
+    "contact": "09683971495",
+    "email": "jm3677545555555555@gmail.com",
+    "address": "",
+    "createdAt": "2025-11-24T05:35:23.832Z",
+    "updatedAt": "2025-11-24T05:35:23.832Z"
+  },
+  {
+    "name": "john michael Beringuel dd",
+    "contact": "09079254234",
+    "email": "jm3677545555555555@gmail.com",
+    "address": "",
+    "createdAt": "2025-11-24T05:59:18.404Z",
+    "updatedAt": "2025-11-24T05:59:18.404Z"
+  }
+]

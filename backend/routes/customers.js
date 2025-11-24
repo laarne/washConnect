@@ -6,76 +6,56 @@ const router = express.Router();
 const customersPath = path.join(__dirname, '../data/customers.json');
 const ordersPath = path.join(__dirname, '../data/orders.json');
 
-// Helper function to read customers
+// --- Helpers ---
 function readCustomers() {
-  try {
-    const data = fs.readFileSync(customersPath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    return [];
-  }
+    try { return JSON.parse(fs.readFileSync(customersPath, 'utf8')); } 
+    catch (e) { return []; }
 }
-
-// Helper function to write customers
-function writeCustomers(customers) {
-  fs.writeFileSync(customersPath, JSON.stringify(customers, null, 2));
+function writeCustomers(data) {
+    fs.writeFileSync(customersPath, JSON.stringify(data, null, 2));
 }
-
-// Helper function to read orders
 function readOrders() {
-  try {
-    const data = fs.readFileSync(ordersPath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    return [];
-  }
+    try { return JSON.parse(fs.readFileSync(ordersPath, 'utf8')); } 
+    catch (e) { return []; }
 }
 
-// Get all customers
+// --- Routes ---
+
+// 1. Get All Customers
 router.get('/', (req, res) => {
-  const customers = readCustomers();
-  res.json(customers);
+    res.json(readCustomers());
 });
 
-// Get customer by name with order history
-router.get('/:name', (req, res) => {
-  const customers = readCustomers();
-  const orders = readOrders();
-  const customerName = decodeURIComponent(req.params.name);
-  
-  const customer = customers.find(c => c.name === customerName);
-  const customerOrders = orders.filter(o => o.customerName === customerName);
+// 2. Update Customer (Contact/Email only)
+router.put('/:name', (req, res) => {
+    const customers = readCustomers();
+    const targetName = decodeURIComponent(req.params.name);
+    const { contact, email } = req.body;
 
-  res.json({
-    customer: customer || { name: customerName, contact: '' },
-    orders: customerOrders
-  });
+    const index = customers.findIndex(c => c.name === targetName);
+    if (index !== -1) {
+        customers[index].contact = contact;
+        customers[index].email = email;
+        writeCustomers(customers);
+        res.json(customers[index]);
+    } else {
+        res.status(404).json({ error: "Customer not found" });
+    }
 });
 
-// Create or update customer
-router.post('/', (req, res) => {
-  const customers = readCustomers();
-  const { name, contact } = req.body;
+// 3. Delete Customer
+router.delete('/:name', (req, res) => {
+    const customers = readCustomers();
+    const targetName = decodeURIComponent(req.params.name);
+    
+    const newCustomers = customers.filter(c => c.name !== targetName);
+    
+    if (customers.length === newCustomers.length) {
+        return res.status(404).json({ error: "Customer not found" });
+    }
 
-  const existingIndex = customers.findIndex(c => c.name === name);
-  
-  if (existingIndex !== -1) {
-    // Update existing customer
-    customers[existingIndex].contact = contact || '';
-    customers[existingIndex].updatedAt = new Date().toISOString();
-  } else {
-    // Create new customer
-    customers.push({
-      name,
-      contact: contact || '',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    });
-  }
-
-  writeCustomers(customers);
-  res.json(customers[existingIndex !== -1 ? existingIndex : customers.length - 1]);
+    writeCustomers(newCustomers);
+    res.json({ message: "Customer deleted" });
 });
 
 module.exports = router;
-
