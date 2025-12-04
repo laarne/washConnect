@@ -21,6 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const navBtns = {
         dashboard: document.getElementById('nav-dashboard'),
         orders: document.getElementById('nav-orders'),
+        payments: document.getElementById('nav-payments'),
+        laundryStatus: document.getElementById('nav-laundry-status'),
         customers: document.getElementById('nav-customers'),
         reports: document.getElementById('nav-reports')
     };
@@ -29,6 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const views = {
         dashboard: document.getElementById('dashboard-view'),
         orders: document.getElementById('orders-view'),
+        payments: document.getElementById('payments-view'),
+        laundryStatus: document.getElementById('laundry-status-view'),
         customers: document.getElementById('customers-view'),
         reports: document.getElementById('reports-view')
     };
@@ -169,6 +173,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (typeof setupOrderFilters === 'function') setupOrderFilters();
             }, 100);
         }
+        if (viewName === 'payments') {
+            loadPayments();
+        }
+        if (viewName === 'laundryStatus') {
+            loadLaundryStatus();
+        }
         if (viewName === 'customers') loadCustomers();
         if (viewName === 'reports') {
             // Reset report view when switching to it
@@ -179,6 +189,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Attach click events
     navBtns.dashboard.addEventListener('click', () => window.switchView('dashboard'));
     navBtns.orders.addEventListener('click', () => window.switchView('orders'));
+    navBtns.payments.addEventListener('click', () => window.switchView('payments'));
+    navBtns.laundryStatus.addEventListener('click', () => window.switchView('laundryStatus'));
     navBtns.customers.addEventListener('click', () => window.switchView('customers'));
     navBtns.reports.addEventListener('click', () => window.switchView('reports'));
 
@@ -262,28 +274,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? `<span class="payment-badge paid">Paid${paymentMethod ? ' (' + paymentMethod + ')' : ''}</span>`
                 : `<span class="payment-badge unpaid">Unpaid</span>`;
             
+            const printedName = order.printed_name || '-';
+            const machineNumber = order.machine_number || '-';
+            
             tr.innerHTML = `
                 <td>${order.id}</td>
                 <td><strong>${order.customer_name}</strong></td>
+                <td><strong style="color: #4318FF;">${printedName}</strong></td>
                 <td>${order.service_type}</td>
                 <td>${order.weight_kg} kg</td>
                 <td>${addOnsDisplay}</td>
                 <td>₱${parseFloat(order.price).toFixed(2)}</td>
-                <td>${paymentBadge}</td>
-                <td><span class="status-badge status-${order.status}">${order.status}</span></td>
+                <td>${machineNumber}</td>
                 <td>
                     <div style="display: flex; gap: 5px; flex-wrap: wrap; align-items: center;">
-                        <select onchange="updateStatus('${order.id}', this.value)" class="status-select">
-                            <option value="">Status...</option>
-                            <option value="washing" ${order.status === 'washing' ? 'selected' : ''}>Washing</option>
-                            <option value="ready" ${order.status === 'ready' ? 'selected' : ''}>Ready</option>
-                            <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Completed</option>
-                            <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
-                        </select>
-                        <button onclick="markPayment('${order.id}', '${paymentStatus === 'paid' ? 'unpaid' : 'paid'}')" 
-                                class="btn-small ${paymentStatus === 'paid' ? 'btn-secondary' : 'btn-success'}">
-                            ${paymentStatus === 'paid' ? 'Unpaid' : 'Mark Paid'}
-                        </button>
                         <button onclick="openSmsModal('${order.id}')" class="btn-small btn-secondary">SMS</button>
                         <button onclick="openReceiptModal('${order.id}')" class="btn-small btn-secondary">Receipt</button>
                         <button onclick="openEditOrderModal('${order.id}')" class="btn-small btn-secondary">Edit</button>
@@ -365,6 +369,12 @@ document.addEventListener('DOMContentLoaded', () => {
             loadOrders();
             setTimeout(setupOrderFilters, 100);
         }
+        if (viewName === 'payments') {
+            loadPayments();
+        }
+        if (viewName === 'laundryStatus') {
+            loadLaundryStatus();
+        }
         if (viewName === 'customers') loadCustomers();
         if (viewName === 'reports') {
             // Reset report view when switching to it
@@ -428,6 +438,151 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // D. Load Payments List
+    async function loadPayments() {
+        const tbody = document.getElementById('payments-table-body');
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;"><div class="loading-spinner" style="margin: 20px auto;"></div></td></tr>';
+
+        try {
+            const filterStatus = document.getElementById('payments-filter-status')?.value || '';
+            let url = `${API_URL}/orders/payments`;
+            if (filterStatus) {
+                url += `?payment_status=${filterStatus}`;
+            }
+
+            const res = await fetch(url);
+            const orders = await res.json();
+            displayPayments(orders);
+        } catch (err) {
+            console.error(err);
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">Error loading payments.</td></tr>';
+            showToast('Failed to load payments', 'error');
+        }
+    }
+
+    function displayPayments(orders) {
+        const tbody = document.getElementById('payments-table-body');
+        tbody.innerHTML = '';
+
+        if (orders.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">No payments found.</td></tr>';
+            refreshTableScrollbars();
+            return;
+        }
+
+        orders.forEach(order => {
+            const tr = document.createElement('tr');
+            const printedName = order.printed_name || '-';
+            let paymentStatus = order.payment_status || 'unpaid';
+            const paymentMethod = order.payment_method || '';
+            const paidAmount = order.paid_amount || 0;
+
+            const paymentBadge = paymentStatus === 'paid' 
+                ? `<span class="payment-badge paid">Paid${paymentMethod ? ' (' + paymentMethod + ')' : ''}</span>`
+                : `<span class="payment-badge unpaid">Unpaid</span>`;
+
+            tr.innerHTML = `
+                <td>${order.id}</td>
+                <td><strong>${order.customer_name}</strong></td>
+                <td><strong style="color: #4318FF;">${printedName}</strong></td>
+                <td>${order.service_type}</td>
+                <td>₱${parseFloat(order.price).toFixed(2)}</td>
+                <td>${paymentBadge}</td>
+                <td>${paymentMethod || '-'}</td>
+                <td>${paidAmount > 0 ? '₱' + parseFloat(paidAmount).toFixed(2) : '-'}</td>
+                <td>
+                    <div style="display: flex; gap: 5px; flex-wrap: wrap; align-items: center;">
+                        <button onclick="markPayment('${order.id}', '${paymentStatus === 'paid' ? 'unpaid' : 'paid'}')" 
+                                class="btn-small ${paymentStatus === 'paid' ? 'btn-secondary' : 'btn-success'}">
+                            ${paymentStatus === 'paid' ? 'Mark Unpaid' : 'Mark Paid'}
+                        </button>
+                        <button onclick="openReceiptModal('${order.id}')" class="btn-small btn-secondary">Receipt</button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        refreshTableScrollbars();
+    }
+
+    // E. Load Laundry Status List
+    async function loadLaundryStatus() {
+        const tbody = document.getElementById('laundry-status-table-body');
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;"><div class="loading-spinner" style="margin: 20px auto;"></div></td></tr>';
+
+        try {
+            const filterStatus = document.getElementById('laundry-filter-status')?.value || '';
+            let url = `${API_URL}/orders/status`;
+            if (filterStatus) {
+                url += `?status=${filterStatus}`;
+            }
+
+            const res = await fetch(url);
+            const orders = await res.json();
+            displayLaundryStatus(orders);
+        } catch (err) {
+            console.error(err);
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Error loading laundry status.</td></tr>';
+            showToast('Failed to load laundry status', 'error');
+        }
+    }
+
+    function displayLaundryStatus(orders) {
+        const tbody = document.getElementById('laundry-status-table-body');
+        tbody.innerHTML = '';
+
+        if (orders.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No orders found.</td></tr>';
+            refreshTableScrollbars();
+            return;
+        }
+
+        orders.forEach(order => {
+            const tr = document.createElement('tr');
+            const printedName = order.printed_name || '-';
+            const machineNumber = order.machine_number || '-';
+
+            tr.innerHTML = `
+                <td>${order.id}</td>
+                <td><strong>${order.customer_name}</strong></td>
+                <td><strong style="color: #4318FF;">${printedName}</strong></td>
+                <td>${order.service_type}</td>
+                <td>${order.weight_kg} kg</td>
+                <td><span class="status-badge status-${order.status}">${order.status}</span></td>
+                <td><strong style="color: #4318FF;">${machineNumber}</strong></td>
+                <td>
+                    <div style="display: flex; gap: 5px; flex-wrap: wrap; align-items: center;">
+                        <select onchange="updateStatus('${order.id}', this.value)" class="status-select">
+                            <option value="">Status...</option>
+                            <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
+                            <option value="washing" ${order.status === 'washing' ? 'selected' : ''}>Washing</option>
+                            <option value="ready" ${order.status === 'ready' ? 'selected' : ''}>Ready</option>
+                            <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Completed</option>
+                            <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                        </select>
+                        <select onchange="updateMachine('${order.id}', this.value)" class="status-select">
+                            <option value="">Machine...</option>
+                            <option value="Washer 1" ${order.machine_number === 'Washer 1' ? 'selected' : ''}>Washer 1</option>
+                            <option value="Washer 2" ${order.machine_number === 'Washer 2' ? 'selected' : ''}>Washer 2</option>
+                            <option value="Washer 3" ${order.machine_number === 'Washer 3' ? 'selected' : ''}>Washer 3</option>
+                            <option value="Washer 4" ${order.machine_number === 'Washer 4' ? 'selected' : ''}>Washer 4</option>
+                            <option value="Dryer 1" ${order.machine_number === 'Dryer 1' ? 'selected' : ''}>Dryer 1</option>
+                            <option value="Dryer 2" ${order.machine_number === 'Dryer 2' ? 'selected' : ''}>Dryer 2</option>
+                            <option value="Dryer 3" ${order.machine_number === 'Dryer 3' ? 'selected' : ''}>Dryer 3</option>
+                            <option value="Dryer 4" ${order.machine_number === 'Dryer 4' ? 'selected' : ''}>Dryer 4</option>
+                            <option value="">Remove</option>
+                        </select>
+                        <button onclick="openSmsModal('${order.id}')" class="btn-small btn-secondary">SMS</button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        refreshTableScrollbars();
+    }
+
     // --- 6. FORM SUBMISSIONS ---
 
     // Create New Order
@@ -462,6 +617,8 @@ document.addEventListener('DOMContentLoaded', () => {
             service_type: document.getElementById('order-service').value,
             weight_kg: document.getElementById('order-weight').value,
             add_ons: addOns,
+            printed_name: document.getElementById('order-printed-name').value,
+            machine_number: document.getElementById('order-machine-number').value || null,
             notes: document.getElementById('order-notes')?.value || ''
         };
 
@@ -944,6 +1101,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (res.ok) {
                 showToast('Order status updated', 'success');
                 loadOrders(); // Refresh list to show change
+                loadLaundryStatus(); // Refresh laundry status view if open
                 loadDashboardData(); // Update dashboard
             } else {
                 const error = await res.json();
@@ -971,6 +1129,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (res.ok) {
                 showToast(`Payment marked as ${paymentStatus}`, 'success');
                 loadOrders();
+                loadPayments(); // Refresh payments view if open
                 loadDashboardData();
             } else {
                 // Check if it's a database column error
@@ -987,14 +1146,51 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Update Machine Number
+    window.updateMachine = async (orderId, machineNumber) => {
+        if (!machineNumber) {
+            machineNumber = null; // Clear machine assignment
+        }
+
+        try {
+            const res = await fetch(`${API_URL}/orders/${orderId}/machine`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ machine_number: machineNumber })
+            });
+
+            if (res.ok) {
+                showToast(`Machine updated to ${machineNumber || 'none'}`, 'success');
+                loadLaundryStatus(); // Refresh laundry status view
+                loadOrders(); // Also refresh orders view
+            } else {
+                const error = await res.json();
+                showToast(error.error || 'Failed to update machine', 'error');
+            }
+        } catch (err) {
+            showToast('Error updating machine', 'error');
+        }
+    };
+
     // --- 9. SMS NOTIFICATION PROTOTYPE & DIGITAL RECEIPT ---
 
     // Open SMS modal (prototype only)
-    window.openSmsModal = (orderId) => {
-        const order = allOrders.find(o => String(o.id) === String(orderId));
+    window.openSmsModal = async (orderId) => {
+        let order = allOrders.find(o => String(o.id) === String(orderId));
+        
+        // If order not in cache, fetch it
         if (!order) {
-            showToast('Order not found for SMS prototype', 'error');
-            return;
+            try {
+                const res = await fetch(`${API_URL}/orders/${orderId}`);
+                if (!res.ok) {
+                    showToast('Order not found for SMS', 'error');
+                    return;
+                }
+                order = await res.json();
+            } catch (err) {
+                showToast('Error loading order for SMS', 'error');
+                return;
+            }
         }
 
         // Try to find customer phone from loaded customers
@@ -1056,11 +1252,22 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Digital receipt prototype
-    window.openReceiptModal = (orderId) => {
-        const order = allOrders.find(o => String(o.id) === String(orderId));
+    window.openReceiptModal = async (orderId) => {
+        let order = allOrders.find(o => String(o.id) === String(orderId));
+        
+        // If order not in cache, fetch it
         if (!order) {
-            showToast('Order not found for receipt', 'error');
-            return;
+            try {
+                const res = await fetch(`${API_URL}/orders/${orderId}`);
+                if (!res.ok) {
+                    showToast('Order not found for receipt', 'error');
+                    return;
+                }
+                order = await res.json();
+            } catch (err) {
+                showToast('Error loading order for receipt', 'error');
+                return;
+            }
         }
 
         // Try to get customer phone
@@ -1076,6 +1283,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('receipt-order-id').textContent = order.id;
         document.getElementById('receipt-customer-name').textContent = order.customer_name || '';
         document.getElementById('receipt-customer-phone').textContent = phone || '-';
+        document.getElementById('receipt-printed-name').textContent = order.printed_name || '-';
 
         const date = order.created_at ? new Date(order.created_at) : new Date();
         document.getElementById('receipt-date').textContent = date.toLocaleString();
@@ -1155,6 +1363,8 @@ document.addEventListener('DOMContentLoaded', () => {
             service_type: document.getElementById('edit-order-service').value,
             weight_kg: document.getElementById('edit-order-weight').value,
             add_ons: addOns,
+            printed_name: document.getElementById('edit-order-printed-name').value,
+            machine_number: document.getElementById('edit-order-machine-number').value || null,
             notes: document.getElementById('edit-order-notes').value
         };
         
@@ -1279,6 +1489,24 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.id === 'edit-customer-modal') {
             closeEditCustomerModal();
         }
+    });
+
+    // Payment filter event listener
+    document.getElementById('payments-filter-status')?.addEventListener('change', () => {
+        loadPayments();
+    });
+
+    document.getElementById('refresh-payments-btn')?.addEventListener('click', () => {
+        loadPayments();
+    });
+
+    // Laundry status filter event listener
+    document.getElementById('laundry-filter-status')?.addEventListener('change', () => {
+        loadLaundryStatus();
+    });
+
+    document.getElementById('refresh-laundry-btn')?.addEventListener('click', () => {
+        loadLaundryStatus();
     });
 
 });

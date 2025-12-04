@@ -44,6 +44,8 @@
             <nav>
                 <button id="nav-dashboard" class="nav-btn active">Dashboard</button>
                 <button id="nav-orders" class="nav-btn">Orders List</button>
+                <button id="nav-payments" class="nav-btn">Payments</button>
+                <button id="nav-laundry-status" class="nav-btn">Laundry Status</button>
                 <button id="nav-customers" class="nav-btn">Customers</button>
                 <button id="nav-reports" class="nav-btn">Reports</button>
             </nav>
@@ -127,6 +129,28 @@
                         </div>
 
                         <div class="form-group">
+                            <label>Printed Name (for labeling clothes)</label>
+                            <input type="text" id="order-printed-name" placeholder="e.g. Elerie's clothes" required>
+                            <small style="color: var(--text-muted); font-size: 0.85rem;">This name will be printed on labels to identify the clothes</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Machine Number (Optional)</label>
+                            <select id="order-machine-number">
+                                <option value="">Not assigned</option>
+                                <option value="Washer 1">Washer 1</option>
+                                <option value="Washer 2">Washer 2</option>
+                                <option value="Washer 3">Washer 3</option>
+                                <option value="Washer 4">Washer 4</option>
+                                <option value="Dryer 1">Dryer 1</option>
+                                <option value="Dryer 2">Dryer 2</option>
+                                <option value="Dryer 3">Dryer 3</option>
+                                <option value="Dryer 4">Dryer 4</option>
+                            </select>
+                            <small style="color: var(--text-muted); font-size: 0.85rem;">Select which machine the clothes are in</small>
+                        </div>
+
+                        <div class="form-group">
                             <label>Notes (Optional)</label>
                             <textarea id="order-notes" rows="3" placeholder="Special instructions or notes..."></textarea>
                         </div>
@@ -192,12 +216,12 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Customer</th>
+                                    <th>Printed Name</th>
                                     <th>Service</th>
                                     <th>Weight</th>
                                     <th>Add-ons</th>
                                     <th>Price</th>
-                                    <th>Payment</th>
-                                    <th>Status</th>
+                                    <th>Machine</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -207,7 +231,99 @@
                 </div>
             </div>
 
-            <!-- 3. CUSTOMERS VIEW -->
+            <!-- 3. PAYMENT MANAGEMENT VIEW -->
+            <div id="payments-view" class="view hidden">
+                <h2>Payment Management</h2>
+                
+                <!-- Payment Filter -->
+                <div class="form-container" style="margin-bottom: 20px;">
+                    <div class="filters-grid" style="display: grid; grid-template-columns: 1fr auto; gap: 15px; align-items: end;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Filter by Payment Status</label>
+                            <select id="payments-filter-status">
+                                <option value="">All Payments</option>
+                                <option value="paid">Paid</option>
+                                <option value="unpaid">Unpaid</option>
+                            </select>
+                        </div>
+                        <button type="button" id="refresh-payments-btn" class="btn-secondary" style="height: fit-content;">Refresh</button>
+                    </div>
+                </div>
+
+                <!-- Payments Table -->
+                <div class="table-wrapper">
+                    <div class="table-scrollbar">
+                        <div class="table-scrollbar-spacer"></div>
+                    </div>
+                    <div class="table-scroll">
+                        <table id="payments-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Customer</th>
+                                    <th>Printed Name</th>
+                                    <th>Service</th>
+                                    <th>Price</th>
+                                    <th>Payment Status</th>
+                                    <th>Payment Method</th>
+                                    <th>Paid Amount</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="payments-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. LAUNDRY STATUS VIEW -->
+            <div id="laundry-status-view" class="view hidden">
+                <h2>Laundry Status & Machine Tracking</h2>
+                
+                <!-- Status Filter -->
+                <div class="form-container" style="margin-bottom: 20px;">
+                    <div class="filters-grid" style="display: grid; grid-template-columns: 1fr auto; gap: 15px; align-items: end;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Filter by Status</label>
+                            <select id="laundry-filter-status">
+                                <option value="">All Statuses</option>
+                                <option value="pending">Pending</option>
+                                <option value="washing">Washing</option>
+                                <option value="ready">Ready</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                        <button type="button" id="refresh-laundry-btn" class="btn-secondary" style="height: fit-content;">Refresh</button>
+                    </div>
+                </div>
+
+                <!-- Laundry Status Table -->
+                <div class="table-wrapper">
+                    <div class="table-scrollbar">
+                        <div class="table-scrollbar-spacer"></div>
+                    </div>
+                    <div class="table-scroll">
+                        <table id="laundry-status-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Customer</th>
+                                    <th>Printed Name</th>
+                                    <th>Service</th>
+                                    <th>Weight</th>
+                                    <th>Status</th>
+                                    <th>Machine Number</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="laundry-status-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. CUSTOMERS VIEW -->
             <div id="customers-view" class="view hidden">
                 <h2>Customer List</h2>
                 
@@ -251,7 +367,7 @@
                 </div>
             </div>
 
-            <!-- 4. REPORTS VIEW -->
+            <!-- 6. REPORTS VIEW -->
             <div id="reports-view" class="view hidden">
                 <h2>Reports & Analytics</h2>
                 
@@ -413,6 +529,10 @@
                 <h4 style="margin-bottom: 5px;">Wash Connect Laundry</h4>
                 <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">Digital Receipt (Prototype Only)</p>
                 <hr style="margin: 15px 0;">
+                <div style="background: #f0f0f0; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                    <p style="margin: 0; font-weight: bold; font-size: 1.1rem;" id="receipt-printed-name"></p>
+                    <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: var(--text-muted);">Printed Name for Label</p>
+                </div>
                 <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
                     <div>
                         <p><strong>Customer:</strong> <span id="receipt-customer-name"></span></p>
@@ -489,6 +609,24 @@
                             <label for="edit-addon-powder" style="margin: 0; font-weight: normal;">Extra Powder</label>
                         </div>
                     </div>
+                </div>
+                <div class="form-group">
+                    <label>Printed Name (for labeling clothes)</label>
+                    <input type="text" id="edit-order-printed-name" placeholder="e.g. Elerie's clothes" required>
+                </div>
+                <div class="form-group">
+                    <label>Machine Number</label>
+                    <select id="edit-order-machine-number">
+                        <option value="">Not assigned</option>
+                        <option value="Washer 1">Washer 1</option>
+                        <option value="Washer 2">Washer 2</option>
+                        <option value="Washer 3">Washer 3</option>
+                        <option value="Washer 4">Washer 4</option>
+                        <option value="Dryer 1">Dryer 1</option>
+                        <option value="Dryer 2">Dryer 2</option>
+                        <option value="Dryer 3">Dryer 3</option>
+                        <option value="Dryer 4">Dryer 4</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Notes</label>

@@ -152,7 +152,7 @@ app.get('/api/orders/:id', async (req, res) => {
 });
 
 app.post('/api/orders', async (req, res) => {
-    const { customer_id, service_type, weight_kg, notes, add_ons } = req.body;
+    const { customer_id, service_type, weight_kg, notes, add_ons, printed_name, machine_number } = req.body;
     
     // 1. Get Base Price
     const basePrice = PRICING[service_type] || 0;
@@ -182,6 +182,8 @@ app.post('/api/orders', async (req, res) => {
             price: totalPrice, 
             notes,
             add_ons: add_ons, // Saves ["Fabcon", "Powder"] etc.
+            printed_name: printed_name || null, // Name to print on label
+            machine_number: machine_number || null, // Machine tracking
             status: 'pending',
             payment_status: null,
             paid_amount: null
@@ -209,10 +211,78 @@ app.patch('/api/orders/:id/status', async (req, res) => {
     res.json(data);
 });
 
+// Update machine number
+app.patch('/api/orders/:id/machine', async (req, res) => {
+    const { id } = req.params;
+    const { machine_number } = req.body;
+
+    const { data, error } = await supabase
+        .from('orders')
+        .update({ machine_number: machine_number || null })
+        .eq('id', id)
+        .select()
+        .single();
+
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data);
+});
+
+// Get orders by payment status (for Payment Management view)
+app.get('/api/orders/payments', async (req, res) => {
+    const { payment_status } = req.query;
+    
+    let query = supabase
+        .from('orders')
+        .select('*, customer:customers(name)')
+        .order('created_at', { ascending: false });
+
+    if (payment_status) {
+        if (payment_status === 'unpaid') {
+            query = query.or('payment_status.is.null,payment_status.eq.unpaid');
+        } else {
+            query = query.eq('payment_status', payment_status);
+        }
+    }
+
+    const { data, error } = await query;
+    if (error) return res.status(500).json({ error: error.message });
+
+    const formatted = data.map(o => ({
+        ...o,
+        customer_name: o.customer?.name || 'Unknown'
+    }));
+
+    res.json(formatted);
+});
+
+// Get orders by laundry status (for Laundry Status view)
+app.get('/api/orders/status', async (req, res) => {
+    const { status } = req.query;
+    
+    let query = supabase
+        .from('orders')
+        .select('*, customer:customers(name)')
+        .order('created_at', { ascending: false });
+
+    if (status) {
+        query = query.eq('status', status);
+    }
+
+    const { data, error } = await query;
+    if (error) return res.status(500).json({ error: error.message });
+
+    const formatted = data.map(o => ({
+        ...o,
+        customer_name: o.customer?.name || 'Unknown'
+    }));
+
+    res.json(formatted);
+});
+
 // Update whole order (frontend used PUT) - recalculates price
 app.put('/api/orders/:id', async (req, res) => {
     const { id } = req.params;
-    const { service_type, weight_kg, add_ons, notes } = req.body;
+    const { service_type, weight_kg, add_ons, notes, printed_name, machine_number } = req.body;
 
     try {
         const basePrice = PRICING[service_type] || 0;
@@ -231,6 +301,8 @@ app.put('/api/orders/:id', async (req, res) => {
                 weight_kg,
                 add_ons,
                 notes,
+                printed_name: printed_name || null,
+                machine_number: machine_number || null,
                 price: totalPrice
             })
             .eq('id', id)
