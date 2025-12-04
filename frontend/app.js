@@ -461,10 +461,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         <td style="text-align: center;">
                             <div style="display: flex; gap: 5px; justify-content: center;">
                                 <button onclick="openEditCustomerModal(${c.id})" class="btn-small btn-secondary" title="Edit Customer">
-                                    ✏️ Edit
+                                    Edit
                                 </button>
                                 <button onclick="deleteCustomer(${c.id}, '${c.name.replace(/'/g, "\\'")}')" class="btn-small btn-danger" title="Delete Customer">
-                                    🗑️ Delete
+                                 Delete
                                 </button>
                             </div>
                         </td>
