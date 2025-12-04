@@ -107,6 +107,23 @@ app.put('/api/customers/:id', async (req, res) => {
     }
 });
 
+// Delete customer
+app.delete('/api/customers/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const { error } = await supabase
+            .from('customers')
+            .delete()
+            .eq('id', id);
+
+        if (error) return res.status(500).json({ error: error.message });
+        res.json({ success: true, message: 'Customer deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 /**
  * ORDERS (With New Calculation Logic)
  */
@@ -126,7 +143,59 @@ app.get('/api/orders', async (req, res) => {
     res.json(formatted);
 });
 
-// Get single order by id (frontend expects this)
+// Get orders by payment status (for Payment Management view) - MUST be before /api/orders/:id
+app.get('/api/orders/payments', async (req, res) => {
+    const { payment_status } = req.query;
+    
+    let query = supabase
+        .from('orders')
+        .select('*, customer:customers(name)')
+        .order('created_at', { ascending: false });
+
+    if (payment_status) {
+        if (payment_status === 'unpaid') {
+            query = query.or('payment_status.is.null,payment_status.eq.unpaid');
+        } else {
+            query = query.eq('payment_status', payment_status);
+        }
+    }
+
+    const { data, error } = await query;
+    if (error) return res.status(500).json({ error: error.message });
+
+    const formatted = data.map(o => ({
+        ...o,
+        customer_name: o.customer?.name || 'Unknown'
+    }));
+
+    res.json(formatted);
+});
+
+// Get orders by laundry status (for Laundry Status view) - MUST be before /api/orders/:id
+app.get('/api/orders/status', async (req, res) => {
+    const { status } = req.query;
+    
+    let query = supabase
+        .from('orders')
+        .select('*, customer:customers(name)')
+        .order('created_at', { ascending: false });
+
+    if (status) {
+        query = query.eq('status', status);
+    }
+
+    const { data, error } = await query;
+    if (error) return res.status(500).json({ error: error.message });
+
+    const formatted = data.map(o => ({
+        ...o,
+        customer_name: o.customer?.name || 'Unknown'
+    }));
+
+    res.json(formatted);
+});
+
+// Get single order by id (frontend expects this) - MUST be after specific routes
 app.get('/api/orders/:id', async (req, res) => {
     const { id } = req.params;
     try {
@@ -225,58 +294,6 @@ app.patch('/api/orders/:id/machine', async (req, res) => {
 
     if (error) return res.status(500).json({ error: error.message });
     res.json(data);
-});
-
-// Get orders by payment status (for Payment Management view)
-app.get('/api/orders/payments', async (req, res) => {
-    const { payment_status } = req.query;
-    
-    let query = supabase
-        .from('orders')
-        .select('*, customer:customers(name)')
-        .order('created_at', { ascending: false });
-
-    if (payment_status) {
-        if (payment_status === 'unpaid') {
-            query = query.or('payment_status.is.null,payment_status.eq.unpaid');
-        } else {
-            query = query.eq('payment_status', payment_status);
-        }
-    }
-
-    const { data, error } = await query;
-    if (error) return res.status(500).json({ error: error.message });
-
-    const formatted = data.map(o => ({
-        ...o,
-        customer_name: o.customer?.name || 'Unknown'
-    }));
-
-    res.json(formatted);
-});
-
-// Get orders by laundry status (for Laundry Status view)
-app.get('/api/orders/status', async (req, res) => {
-    const { status } = req.query;
-    
-    let query = supabase
-        .from('orders')
-        .select('*, customer:customers(name)')
-        .order('created_at', { ascending: false });
-
-    if (status) {
-        query = query.eq('status', status);
-    }
-
-    const { data, error } = await query;
-    if (error) return res.status(500).json({ error: error.message });
-
-    const formatted = data.map(o => ({
-        ...o,
-        customer_name: o.customer?.name || 'Unknown'
-    }));
-
-    res.json(formatted);
 });
 
 // Update whole order (frontend used PUT) - recalculates price

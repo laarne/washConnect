@@ -213,8 +213,45 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('summary-status-ready').textContent = data.statusCounts.ready || 0;
             document.getElementById('summary-status-completed').textContent = data.statusCounts.completed || 0;
 
+            // Load recent orders
+            await loadRecentOrders();
+
         } catch (err) {
             console.error("Error loading dashboard:", err);
+        }
+    }
+
+    // Load Recent Orders for Dashboard
+    async function loadRecentOrders() {
+        try {
+            const res = await fetch(`${API_URL}/orders`);
+            const orders = await res.json();
+            
+            // Get top 5 most recent orders
+            const recentOrders = orders.slice(0, 5);
+            const tbody = document.getElementById('recent-orders-table-body');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            
+            if (recentOrders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: var(--text-muted);">No recent orders</td></tr>';
+                return;
+            }
+            
+            recentOrders.forEach(order => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${order.id}</td>
+                    <td><strong>${order.customer_name || 'Unknown'}</strong></td>
+                    <td>${order.service_type}</td>
+                    <td><span class="status-badge status-${order.status}">${order.status}</span></td>
+                    <td>₱${parseFloat(order.price || 0).toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch (err) {
+            console.error("Error loading recent orders:", err);
         }
     }
 
@@ -418,13 +455,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 tbody.innerHTML += `
                     <tr>
                         <td>${c.id}</td>
-                        <td>${c.name}</td>
-                        <td>${c.phone}</td>
+                        <td><strong>${c.name}</strong></td>
+                        <td>${c.phone || '-'}</td>
                         <td>${c.address || '-'}</td>
-                        <td>
-                            <div style="display: flex; gap: 5px;">
-                                <button onclick="openEditCustomerModal(${c.id})" class="btn-small btn-secondary">Edit</button>
-                                <button onclick="deleteCustomer(${c.id}, '${c.name.replace(/'/g, "\\'")}')" class="btn-small btn-danger">Delete</button>
+                        <td style="text-align: center;">
+                            <div style="display: flex; gap: 5px; justify-content: center;">
+                                <button onclick="openEditCustomerModal(${c.id})" class="btn-small btn-secondary" title="Edit Customer">
+                                    ✏️ Edit
+                                </button>
+                                <button onclick="deleteCustomer(${c.id}, '${c.name.replace(/'/g, "\\'")}')" class="btn-small btn-danger" title="Delete Customer">
+                                    🗑️ Delete
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -441,6 +482,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // D. Load Payments List
     async function loadPayments() {
         const tbody = document.getElementById('payments-table-body');
+        if (!tbody) return; // View not loaded yet
+        
         tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;"><div class="loading-spinner" style="margin: 20px auto;"></div></td></tr>';
 
         try {
@@ -451,11 +494,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const res = await fetch(url);
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
             const orders = await res.json();
             displayPayments(orders);
         } catch (err) {
-            console.error(err);
-            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">Error loading payments.</td></tr>';
+            console.error('Error loading payments:', err);
+            if (tbody) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">Error loading payments. Please try again.</td></tr>';
+            }
             showToast('Failed to load payments', 'error');
         }
     }
@@ -509,6 +557,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // E. Load Laundry Status List
     async function loadLaundryStatus() {
         const tbody = document.getElementById('laundry-status-table-body');
+        if (!tbody) return; // View not loaded yet
+        
         tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;"><div class="loading-spinner" style="margin: 20px auto;"></div></td></tr>';
 
         try {
@@ -519,11 +569,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const res = await fetch(url);
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
             const orders = await res.json();
             displayLaundryStatus(orders);
         } catch (err) {
-            console.error(err);
-            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Error loading laundry status.</td></tr>';
+            console.error('Error loading laundry status:', err);
+            if (tbody) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Error loading laundry status. Please try again.</td></tr>';
+            }
             showToast('Failed to load laundry status', 'error');
         }
     }

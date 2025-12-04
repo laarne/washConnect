@@ -56,27 +56,53 @@
             
             <!-- 1. DASHBOARD VIEW -->
             <div id="dashboard-view" class="view">
-                <h2>Dashboard Overview</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                    <h2 style="margin: 0;">Dashboard</h2>
+                </div>
                 
                 <!-- Summary Cards -->
                 <section class="summary-cards">
-                    <div class="card">
-                        <h3>Today's Income</h3>
-                        <p id="summary-income-today">₱0.00</p>
+                    <div class="card income-card">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div>
+                                <h3>Today's Income</h3>
+                                <p id="summary-income-today" style="font-size: 2.5rem; margin-top: 10px;">₱0.00</p>
+                                <small style="color: var(--text-muted); font-size: 0.85rem;">Total revenue for today</small>
+                            </div>
+                            <div style="width: 50px; height: 50px; background: rgba(5, 205, 153, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                                💰
+                            </div>
+                        </div>
                     </div>
-                    <div class="card">
-                        <h3>Today's Orders</h3>
-                        <p id="summary-orders-today">0</p>
+                    <div class="card orders-card">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div>
+                                <h3>Today's Orders</h3>
+                                <p id="summary-orders-today" style="font-size: 2.5rem; margin-top: 10px;">0</p>
+                                <small style="color: var(--text-muted); font-size: 0.85rem;">Orders created today</small>
+                            </div>
+                            <div style="width: 50px; height: 50px; background: rgba(67, 24, 255, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                                📋
+                            </div>
+                        </div>
                     </div>
-                    <div class="card">
-                        <h3>Month Income</h3>
-                        <p id="summary-income-month">₱0.00</p>
+                    <div class="card month-card">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div>
+                                <h3>Month's Income</h3>
+                                <p id="summary-income-month" style="font-size: 2.5rem; margin-top: 10px;">₱0.00</p>
+                                <small style="color: var(--text-muted); font-size: 0.85rem;">Total revenue this month</small>
+                            </div>
+                            <div style="width: 50px; height: 50px; background: rgba(17, 205, 239, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                                📈
+                            </div>
+                        </div>
                     </div>
                 </section>
                 
                 <!-- Order Status Overview -->
-                <section class="summary-cards status-cards">
-                     <div class="card status-pending">
+                <section class="summary-cards status-cards" style="margin-top: 30px;">
+                    <div class="card status-pending">
                         <h3>Pending</h3>
                         <p id="summary-status-pending">0</p>
                     </div>
@@ -93,6 +119,28 @@
                         <p id="summary-status-completed">0</p>
                     </div>
                 </section>
+
+                <!-- Recent Orders Table -->
+                <div class="table-wrapper" style="margin-top: 30px;">
+                    <h3 style="margin-bottom: 20px; color: var(--text-main); font-size: 1.3rem;">Recent Orders</h3>
+                    <div class="table-scrollbar">
+                        <div class="table-scrollbar-spacer"></div>
+                    </div>
+                    <div class="table-scroll">
+                        <table id="recent-orders-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Service</th>
+                                    <th>Status</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-orders-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             <!-- 2. ORDERS VIEW -->

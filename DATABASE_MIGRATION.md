@@ -41,3 +41,4 @@ ALTER TABLE orders ADD COLUMN IF NOT EXISTS machine_number TEXT;
 - The `machine_number` field is optional and can be set/updated anytime
 - These fields are automatically included in all order API responses
 
+
