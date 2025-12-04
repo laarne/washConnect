@@ -101,3 +101,4 @@ If these return JSON data, the API is working. If they return HTML or errors, th
 2. **Browser Cache**: Always do a hard refresh after deployment
 3. **Render Auto-Deploy**: Render should auto-deploy on git push, but check your settings
 
+

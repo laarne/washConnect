@@ -42,3 +42,4 @@ ALTER TABLE orders ADD COLUMN IF NOT EXISTS machine_number TEXT;
 - These fields are automatically included in all order API responses
 
 
+
