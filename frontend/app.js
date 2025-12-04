@@ -493,18 +493,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 url += `?payment_status=${filterStatus}`;
             }
 
+            console.log('Fetching payments from:', url);
             const res = await fetch(url);
+            
             if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
+                const errorText = await res.text();
+                console.error('Payment API error:', res.status, errorText);
+                throw new Error(`HTTP ${res.status}: ${errorText}`);
             }
+            
             const orders = await res.json();
+            console.log('Payments loaded:', orders.length);
             displayPayments(orders);
         } catch (err) {
             console.error('Error loading payments:', err);
             if (tbody) {
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">Error loading payments. Please try again.</td></tr>';
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color: var(--danger);">Error: ${err.message}</td></tr>`;
             }
-            showToast('Failed to load payments', 'error');
+            showToast(`Failed to load payments: ${err.message}`, 'error');
         }
     }
 
@@ -568,18 +574,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 url += `?status=${filterStatus}`;
             }
 
+            console.log('Fetching laundry status from:', url);
             const res = await fetch(url);
+            
             if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
+                const errorText = await res.text();
+                console.error('Laundry status API error:', res.status, errorText);
+                throw new Error(`HTTP ${res.status}: ${errorText}`);
             }
+            
             const orders = await res.json();
+            console.log('Laundry status loaded:', orders.length);
             displayLaundryStatus(orders);
         } catch (err) {
             console.error('Error loading laundry status:', err);
             if (tbody) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Error loading laundry status. Please try again.</td></tr>';
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color: var(--danger);">Error: ${err.message}</td></tr>`;
             }
-            showToast('Failed to load laundry status', 'error');
+            showToast(`Failed to load laundry status: ${err.message}`, 'error');
         }
     }
 

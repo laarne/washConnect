@@ -145,54 +145,70 @@ app.get('/api/orders', async (req, res) => {
 
 // Get orders by payment status (for Payment Management view) - MUST be before /api/orders/:id
 app.get('/api/orders/payments', async (req, res) => {
-    const { payment_status } = req.query;
-    
-    let query = supabase
-        .from('orders')
-        .select('*, customer:customers(name)')
-        .order('created_at', { ascending: false });
+    try {
+        const { payment_status } = req.query;
+        
+        let query = supabase
+            .from('orders')
+            .select('*, customer:customers(name)')
+            .order('created_at', { ascending: false });
 
-    if (payment_status) {
-        if (payment_status === 'unpaid') {
-            query = query.or('payment_status.is.null,payment_status.eq.unpaid');
-        } else {
-            query = query.eq('payment_status', payment_status);
+        if (payment_status) {
+            if (payment_status === 'unpaid') {
+                query = query.or('payment_status.is.null,payment_status.eq.unpaid');
+            } else {
+                query = query.eq('payment_status', payment_status);
+            }
         }
+
+        const { data, error } = await query;
+        if (error) {
+            console.error('Error fetching payments:', error);
+            return res.status(500).json({ error: error.message });
+        }
+
+        const formatted = data.map(o => ({
+            ...o,
+            customer_name: o.customer?.name || 'Unknown'
+        }));
+
+        res.json(formatted);
+    } catch (err) {
+        console.error('Exception in /api/orders/payments:', err);
+        res.status(500).json({ error: err.message || 'Internal server error' });
     }
-
-    const { data, error } = await query;
-    if (error) return res.status(500).json({ error: error.message });
-
-    const formatted = data.map(o => ({
-        ...o,
-        customer_name: o.customer?.name || 'Unknown'
-    }));
-
-    res.json(formatted);
 });
 
 // Get orders by laundry status (for Laundry Status view) - MUST be before /api/orders/:id
 app.get('/api/orders/status', async (req, res) => {
-    const { status } = req.query;
-    
-    let query = supabase
-        .from('orders')
-        .select('*, customer:customers(name)')
-        .order('created_at', { ascending: false });
+    try {
+        const { status } = req.query;
+        
+        let query = supabase
+            .from('orders')
+            .select('*, customer:customers(name)')
+            .order('created_at', { ascending: false });
 
-    if (status) {
-        query = query.eq('status', status);
+        if (status) {
+            query = query.eq('status', status);
+        }
+
+        const { data, error } = await query;
+        if (error) {
+            console.error('Error fetching laundry status:', error);
+            return res.status(500).json({ error: error.message });
+        }
+
+        const formatted = data.map(o => ({
+            ...o,
+            customer_name: o.customer?.name || 'Unknown'
+        }));
+
+        res.json(formatted);
+    } catch (err) {
+        console.error('Exception in /api/orders/status:', err);
+        res.status(500).json({ error: err.message || 'Internal server error' });
     }
-
-    const { data, error } = await query;
-    if (error) return res.status(500).json({ error: error.message });
-
-    const formatted = data.map(o => ({
-        ...o,
-        customer_name: o.customer?.name || 'Unknown'
-    }));
-
-    res.json(formatted);
 });
 
 // Get single order by id (frontend expects this) - MUST be after specific routes
